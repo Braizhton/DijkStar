@@ -1,0 +1,4 @@
+name = "DijkStar"
+uuid = "87061f0d-9c8b-4b55-accd-1dbd8711bd1f"
+authors = ["Braizhton <arthur.asd8@hotmail.fr>"]
+version = "0.1.0"
