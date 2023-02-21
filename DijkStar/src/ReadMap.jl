@@ -26,10 +26,8 @@ function read_map(map::String)
     end
 
     return mapMatrix
-        
-    # mapInput = open(ARGS[1], "r")
-
 end
 
 # read_map(ARGS[1])
-# Luxor / Makie (graphique) 
+# Luxor / Makie (graphique)
+# # mapInput = open(ARGS[1], "r")
