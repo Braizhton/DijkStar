@@ -5,5 +5,6 @@ version = "0.1.0"
 
 [deps]
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
+Gtk = "4c0ca9eb-093a-5379-98c5-f87ac0bbbf44"
 LanguageServer = "2b0e0bc5-e4fd-59b4-8912-456d1b03d8d7"
 TrackingHeaps = "d94bfb22-46ad-56c3-87d0-f6c298cb800e"
