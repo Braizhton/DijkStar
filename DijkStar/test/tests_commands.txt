@@ -1,0 +1,2 @@
+ dijkstra("../test/arena.map", (5,4), (45,45), 15)
+ dijkstra("../test/den012d.map", (8,99), (179,149), 5)

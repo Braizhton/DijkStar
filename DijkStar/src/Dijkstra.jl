@@ -1,12 +1,13 @@
 include("ReadMap.jl")
 include("TransitionCost.jl")
+include("MapWindow.jl")
 using DataStructures
 
-function dijkstra(map::String, ori::Tuple{Int64,Int64}, dest::Tuple{Int64,Int64})
+function dijkstra(mapTitle::String, ori::Tuple{Int64,Int64}, dest::Tuple{Int64,Int64}, scale::Int64)
 
     # INITIATIONS
     inf = typemax(Int64)            # Infinity
-    mapMatrix = read_map(map)       # Map matrix
+    mapMatrix = read_map(mapTitle)  # Map matrix
     height, width = size(mapMatrix) # Dimensions
    
     dist = fill(inf, (height,width))                          # Distance of each point from the origin
@@ -69,10 +70,12 @@ function dijkstra(map::String, ori::Tuple{Int64,Int64}, dest::Tuple{Int64,Int64}
     # PRINTING
     (x,y) = dest
     while (x,y) != ori
-        print((x,y),"\n")
+        println((x,y))
         (x,y) = prec[x,y]
     end
-    print(ori)
+    println(ori)
 
+    ### GRAPHICS ###
+    draw_map_window(mapMatrix, prec, ori, dest, mapTitle, scale)
 end
 
