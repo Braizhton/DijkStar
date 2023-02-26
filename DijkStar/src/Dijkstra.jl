@@ -3,7 +3,9 @@ include("TransitionCost.jl")
 include("MapWindow.jl")
 using DataStructures
 
-function dijkstra(mapTitle::String, ori::Tuple{Int64,Int64}, dest::Tuple{Int64,Int64}, scale::Int64)
+function dijkstra(mapTitle::String,
+                  ori::Tuple{Int64,Int64},
+                  dest::Tuple{Int64,Int64})
 
     # INITIATIONS
     inf = typemax(Int64)            # Infinity
@@ -76,6 +78,5 @@ function dijkstra(mapTitle::String, ori::Tuple{Int64,Int64}, dest::Tuple{Int64,I
     println(ori)
 
     ### GRAPHICS ###
-    draw_map_window(mapMatrix, prec, ori, dest, mapTitle, scale)
+    draw_map_window(mapMatrix, prec, ori, dest, mapTitle)
 end
-

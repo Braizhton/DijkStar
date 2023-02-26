@@ -1,9 +1,6 @@
 module DijkStar
 
-include("ReadMap.jl")
-include("TransitionCost.jl")
-
-function astar()
-end
+export dijkstra
+include("Dijkstra.jl")
 
 end # module DijkStar

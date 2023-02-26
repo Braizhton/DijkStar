@@ -2,7 +2,7 @@
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "31ba2119ee1c13323f9ca958d50f93f81bee988f"
+project_hash = "392cf799573d2393c7449a095b158c9473651bde"
 
 [[deps.ATK_jll]]
 deps = ["Artifacts", "Glib_jll", "JLLWrappers", "Libdl", "Pkg"]
@@ -472,11 +472,6 @@ uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 git-tree-sha1 = "90538bf898832b6ebd900fa40f223e695970e3a5"
 uuid = "0796e94c-ce3b-5d07-9a54-7f471281c624"
 version = "0.5.25"
-
-[[deps.TrackingHeaps]]
-git-tree-sha1 = "3961071b858c921e81468cf08d08bea81e20e051"
-uuid = "d94bfb22-46ad-56c3-87d0-f6c298cb800e"
-version = "0.1.0"
 
 [[deps.URIs]]
 git-tree-sha1 = "ac00576f90d8a259f2c9d823e91d1de3fd44d348"

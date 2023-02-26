@@ -1,17 +1,17 @@
 using Gtk
 using Colors
 
-function set_rgb(c::Char, ctx)
+function set_color(c::Char, ctx)
     if c == '.' || c == 'G'
-        set_source_rgb(ctx, 0.933,0.914,0.678) # Ground
+        set_source(ctx, colorant"wheat2")      # Ground
     elseif c == 'S'
-        set_source_rgb(ctx, 0.796,0.639,0.0)   # Swamp
+        set_source(ctx, colorant"darkkhaki")   # Swamp
     elseif c == 'W'
-        set_source_rgb(ctx, 0.2,0.576,1.0)     # Water
+        set_source(ctx, colorant"dodgerblue")  # Water
     elseif c == 'T'
-        set_source_rgb(ctx, 0.18,0.545,0.22)   # Trees 
+        set_source(ctx, colorant"forestgreen") # Trees 
     elseif c == '@' || c == 'O'
-        set_source_rgb(ctx, 0.0, 0.0, 0.0)     # Black (out of bounds)
+        set_source(ctx, colorant"black")       # Black (out of bounds)
     end
 end
 
@@ -19,22 +19,22 @@ function draw_map_window(map::Matrix{Char},
                          prec::Matrix{Tuple{Int64,Int64}},
                          ori::Tuple{Int64,Int64},
                          dest::Tuple{Int64,Int64},
-                         title::String, 
-                         scale::Int64)
-    h, w = size(map)
+                         title::String)
+    h, w  = size(map)
+    scale = w/h
    
     # Defining some colors
-    purple = (0.655,0.424,0.902)
-    orange = (1.0,0.584,0.09)
-    red    = (0.922,0.0,0.0)
-    green  = (0.408,0.827,0.255)
+    purple  = colorant"mediumpurple"
+    purpleb = colorant"mediumorchid"
+    red     = colorant"red"
+    green   = colorant"lime"
    
     # Setting canvas and window
-    canvas = @GtkCanvas(h*scale,w*scale)
+    canvas = @GtkCanvas(ceil(950*scale),950)
     box = GtkBox(:h)
     push!(box,canvas)
     set_gtk_property!(box,:expand,canvas,true)
-    mapWindow = GtkWindow(box, title)
+    mapWindow = GtkWindow(box, title, resizable=false)
 
     # Drawing
     @guarded draw(canvas) do widget
@@ -42,32 +42,30 @@ function draw_map_window(map::Matrix{Char},
         ctx = getgc(canvas)
         hc = height(canvas)
         wc = width(canvas)
-        scaleh = hc/h
-        scalew = wc/w
-
-        #println(hc, "\n", wc, "\n", scaleh, "\n", scalew)
+        scaleh = ceil(hc/h)
+        scalew = ceil(wc/w)
 
         # Drawing map
         for i = 1:w, j = 1:h
             rectangle(ctx, (i-1)*scalew, (j-1)*scaleh, scalew, scaleh)
-            set_rgb(map[j,i], ctx)   # Setting graphic context color
+            set_color(map[j,i], ctx)   # Setting graphic context color
             fill(ctx)                # Filling canvas
         end
         
         # Drawing source
         rectangle(ctx, (ori[2]-1)*scalew, (ori[1]-1)*scaleh, scalew, scaleh)
-        set_source_rgb(ctx, green[1], green[2], green[3])
+        set_source(ctx, green)
         fill(ctx)
         
         # Drawing shortest path
-        set_source_rgb(ctx, purple[1], purple[2], purple[3])
+        set_source(ctx, purple)
         (x,y) = dest
         while (x,y) != ori
             rectangle(ctx, (y-1)*scalew, (x-1)*scaleh, scalew, scaleh)
             if map[x,y] == 'S'
-                set_source_rgb(ctx, orange[1], orange[2], orange[3]) # Showing that the section is slowed
+                set_source(ctx, purpleb) # Showing that the section is slowed
             else
-                set_source_rgb(ctx, purple[1], purple[2], purple[3]) # Showing normal path
+                set_source(ctx, purple) # Showing normal path
             end
             fill(ctx)
             (x,y) = prec[x,y]
@@ -75,7 +73,7 @@ function draw_map_window(map::Matrix{Char},
         
         # Drawing destination
         rectangle(ctx, (dest[2]-1)*scalew, (dest[1]-1)*scaleh, scalew, scaleh)
-        set_source_rgb(ctx, red[1], red[2], red[3])
+        set_source(ctx, red)
         fill(ctx)
     end
     showall(mapWindow)

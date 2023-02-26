@@ -12,8 +12,8 @@ function read_map(map::String)
     # Reading line with width value
     width::Int64 = parse(Int64, readline(mapInput)[7:end])
 
-    print("Height : ", height, "\n")
-    print("Width : ", width, "\n")
+    #print("Height : ", height, "\n")
+    #print("Width : ", width, "\n")
 
     trash = readline(mapInput)
 
