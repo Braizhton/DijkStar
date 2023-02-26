@@ -1,5 +1,6 @@
 include("ReadMap.jl")
 include("TransitionCost.jl")
+include("Dijkstra.jl")
 using DataStructures, Gtk, Colors
 
 function set_color(c::Char)
@@ -47,7 +48,8 @@ function findShowPath(canvas::GtkCanvas,
                       ori::Tuple{Int64,Int64},
                       dest::Tuple{Int64, Int64},
                       mapMatrix::Matrix{Char},
-                      colorMatrix)#, speed::Float64)
+                      colorMatrix,
+                      gradOn::Bool)#, speed::Float64)
     # Colors
     gradStart = colorant"lime"
     gradEnd = colorant"red"
@@ -91,7 +93,10 @@ function findShowPath(canvas::GtkCanvas,
                                                         (ori[1]-min_x)^2 +
                                                         (ori[2]-min_y)^2)+1)]
         end
-        draw(canvas) # Refreshing
+        
+        if gradOn
+            draw(canvas) # Refreshing
+        end
         #sleep(speed)
         
         # Collecting adjacent points
@@ -111,7 +116,9 @@ function findShowPath(canvas::GtkCanvas,
                 if tc == inf
                     visited[x,y] = true # Set as visited and skip the process
                     #colorMatrix[x,y] = last(grad) # Setting as unreachable on canvas
-                    draw(canvas) # Refreshing
+                    # if gradOn
+                        # draw(canvas) # Refreshing
+                    # end
                     #sleep(speed)
                     continue
                 end
@@ -128,8 +135,10 @@ function findShowPath(canvas::GtkCanvas,
     end
 
     # Drawing shortest path
+    pathLength = 1
     (x,y) = prec[dest[1], dest[2]]
     while (x,y) != ori
+        pathLength += 1
         if mapMatrix[x,y] == 'S'
             colorMatrix[x,y] = slowPath
         else
@@ -137,13 +146,17 @@ function findShowPath(canvas::GtkCanvas,
         end
         (x,y) = prec[x,y]
 
-        draw(canvas) # Refreshing
+        if gradOn
+            draw(canvas) # Refreshing
+        end
         #sleep(speed)
     end
+    println("Path length from  ", ori, " to ", dest, " : ", pathLength)
+    draw(canvas)
     #END
 end
 
-function dijkstraGUI(title::String)#, speed::Float64)
+function dijkstraGUI(title::String, guiOn::Bool, gradOn::Bool)#, speed::Float64)
     # INITIATIONS
     oriColor = colorant"magenta"
     destColor = colorant"red"
@@ -155,9 +168,8 @@ function dijkstraGUI(title::String)#, speed::Float64)
     scale = ceil(Int, 950/h)
     hc = scale*h
     wc = scale*w
-    canvas = @GtkCanvas(hc,wc)
+    canvas = @GtkCanvas(wc,hc)
     canvas.draw = mapDraw # Setting new draw function
-
     box = GtkBox(:h)
     push!(box,canvas)
     set_gtk_property!(box,:expand,canvas,true)
@@ -172,8 +184,8 @@ function dijkstraGUI(title::String)#, speed::Float64)
 
     id = signal_connect(canvas, "button-press-event") do widget, event
         if event.button == 1
-            x = ceil(Int, event.y/scale)+1 # Index i (height)
-            y = ceil(Int, event.x/scale)+1 # Index j (width)
+            x = ceil(Int, event.y/scale) # Index i (height)
+            y = ceil(Int, event.x/scale) # Index j (width)
             # println("x : ", x)
             # println("y : ", y)
             if waitOrigin
@@ -188,12 +200,18 @@ function dijkstraGUI(title::String)#, speed::Float64)
                 draw(canvas)
             end
         end
+        
         # Calling pathfinding function after origin and destination are set
         if !waitOrigin && !waitDest && !done
             done = true
-            findShowPath(canvas,
-                         ori, dest,
-                         mapMatrix, colorMatrix)#, speed)
+            if guiOn
+                findShowPath(canvas,
+                             ori, dest,
+                             mapMatrix, colorMatrix,
+                             gradOn)#, speed)
+            else
+                dijkstra(title, ori, dest)
+            end
         elseif done
             # Reset !
             done = false

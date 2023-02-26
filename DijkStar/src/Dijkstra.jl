@@ -70,12 +70,15 @@ function dijkstra(mapTitle::String,
     # END
 
     # PRINTING
-    (x,y) = dest
+    pathLength = 1
+    (x,y) = prec[dest[1], dest[2]]
     while (x,y) != ori
+        pathLength += 1
         println((x,y))
         (x,y) = prec[x,y]
     end
     println(ori)
+    println("Path length from  ", ori, " to ", dest, ": ", pathLength)
 
     ### GRAPHICS ###
     draw_map_window(mapMatrix, prec, ori, dest, mapTitle)
