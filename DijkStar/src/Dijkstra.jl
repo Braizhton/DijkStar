@@ -1,5 +1,5 @@
 include("ReadMap.jl")
-include("TransitionCost.jl")
+#include("TransitionCost.jl")
 include("MapWindow.jl")
 using DataStructures
 
@@ -22,6 +22,19 @@ function dijkstra(mapTitle::String,
                'W' => (0,0),
                'E' => (0,0))
 
+    tileIndex::Dict{Char, Int64} = Dict('@' => 1,
+                                        'O' => 1,
+                                        'T' => 1,
+                                        '.' => 2,
+                                        'G' => 2,
+                                        'S' => 3,
+                                        'W' => 4)
+
+                                # @   .   S   W
+    costMatrix::Matrix{Int64} = [inf inf inf inf; # @
+                                 inf  1   3  inf; # .
+                                 inf  3   5  inf; # S
+                                 inf inf inf  1]  # W
     # BEGIN
     dist[ori[1], ori[2]] = 0    # Setting the origin's distance from itself
     push!(pq, ori => 0)         # Initiating the priority queue
@@ -50,7 +63,8 @@ function dijkstra(mapTitle::String,
             # Checking if the point is inbounds
             if (x >= 1 && x <= width && y >= 1 && y <= height)
                 # Calculating transition cost
-                tc = transition_cost(mapMatrix[min_x,min_y], mapMatrix[x,y])
+                tc = costMatrix[tileIndex[mapMatrix[min_x,min_y]],
+                                tileIndex[mapMatrix[x,y]]]
                 # Checking if the point is a wall
                 if tc == inf
                     visited[x,y] = true # Set as visited and skip the process

@@ -1,20 +1,6 @@
 using Gtk
 using Colors
 
-function set_color(c::Char, ctx)
-    if c == '.' || c == 'G'
-        set_source(ctx, colorant"wheat2")      # Ground
-    elseif c == 'S'
-        set_source(ctx, colorant"darkkhaki")   # Swamp
-    elseif c == 'W'
-        set_source(ctx, colorant"dodgerblue")  # Water
-    elseif c == 'T'
-        set_source(ctx, colorant"forestgreen") # Trees 
-    elseif c == '@' || c == 'O'
-        set_source(ctx, colorant"black")       # Black (out of bounds)
-    end
-end
-
 function draw_map_window(map::Matrix{Char},
                          prec::Matrix{Tuple{Int64,Int64}},
                          ori::Tuple{Int64,Int64},
@@ -28,6 +14,15 @@ function draw_map_window(map::Matrix{Char},
     purpleb = colorant"mediumorchid"
     red     = colorant"red"
     green   = colorant"lime"
+    
+    colorSet::Dict{Char, RGB} =
+            Dict('.' => colorant"wheat",
+                 'G' => colorant"wheat",
+                 'S' => colorant"darkkhaki",
+                 'W' => colorant"dodgerblue",
+                 'T' => colorant"forestgreen",
+                 '@' => colorant"black",
+                 'O' => colorant"black")
    
     # Setting canvas and window
     canvas = @GtkCanvas(ceil(950*scale),950)
@@ -48,8 +43,8 @@ function draw_map_window(map::Matrix{Char},
         # Drawing map
         for i = 1:w, j = 1:h
             rectangle(ctx, (i-1)*scalew, (j-1)*scaleh, scalew, scaleh)
-            set_color(map[j,i], ctx)   # Setting graphic context color
-            fill(ctx)                # Filling canvas
+            set_source(ctx, colorSet[map[j,i]]) # Setting graphic context color
+            fill(ctx)                           # Filling canvas
         end
         
         # Drawing source
@@ -78,3 +73,20 @@ function draw_map_window(map::Matrix{Char},
     end
     showall(mapWindow)
 end
+
+#=
+function set_color(c::Char, ctx)
+    if c == '.' || c == 'G'
+        set_source(ctx, colorant"wheat2")      # Ground
+    elseif c == 'S'
+        set_source(ctx, colorant"darkkhaki")   # Swamp
+    elseif c == 'W'
+        set_source(ctx, colorant"dodgerblue")  # Water
+    elseif c == 'T'
+        set_source(ctx, colorant"forestgreen") # Trees 
+    elseif c == '@' || c == 'O'
+        set_source(ctx, colorant"black")       # Black (out of bounds)
+    end
+end
+=#
+

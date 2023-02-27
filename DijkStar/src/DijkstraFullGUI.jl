@@ -1,31 +1,7 @@
 include("ReadMap.jl")
-include("TransitionCost.jl")
+#include("TransitionCost.jl")
 include("Dijkstra.jl")
 using DataStructures, Gtk, Colors
-
-function set_color(c::Char)
-    if c == '.' || c == 'G'
-        return colorant"wheat"        # Ground
-    elseif c == 'S'
-        return colorant"darkkhaki"    # Swamp
-    elseif c == 'W'
-        return colorant"dodgerblue"   # Water
-    elseif c == 'T'
-        return colorant"forestgreen"  # Trees 
-    elseif c == '@' || c == 'O'
-        return colorant"black"        # Out of bounds
-    #=
-    elseif c == 'X'
-        return colorant"lime"         # Source
-    elseif c == 'Y'
-        return colorant"red"          # Destination
-    elseif c == 'P'
-        return colorant"mediumpurple" # Path
-    elseif c == 'Q'
-        return colorant"mediumorchid" # Slowed path
-    =#
-    end
-end
 
 function mapDraw(canvas::GtkCanvas)
     ctx = getgc(canvas)
@@ -72,7 +48,20 @@ function findShowPath(canvas::GtkCanvas,
                'S' => (0,0),
                'W' => (0,0),
                'E' => (0,0))
-   
+
+    tileIndex::Dict{Char, Int64} = Dict('@' => 1,
+                                        'O' => 1,
+                                        'T' => 1,
+                                        '.' => 2,
+                                        'G' => 2,
+                                        'S' => 3,
+                                        'W' => 4)
+
+                                # @   .   S   W
+    costMatrix::Matrix{Int64} = [inf inf inf inf; # @
+                                 inf  1   3  inf; # .
+                                 inf  3   5  inf; # S
+                                 inf inf inf  1]  # W
     # BEGIN
     dist[ori[1], ori[2]] = 0    # Setting the origin's distance from itself
     push!(pq, ori => 0)         # Initiating the priority queue
@@ -111,7 +100,8 @@ function findShowPath(canvas::GtkCanvas,
             # Checking if the point is inbounds
             if (x >= 1 && x <= w && y >= 1 && y <= h)
                 # Calculating transition cost
-                tc = transition_cost(mapMatrix[min_x,min_y], mapMatrix[x,y])
+                tc = costMatrix[tileIndex[mapMatrix[min_x,min_y]],
+                                tileIndex[mapMatrix[x,y]]]
                 # Checking if the point is a wall
                 if tc == inf
                     visited[x,y] = true # Set as visited and skip the process
@@ -160,8 +150,18 @@ function dijkstraGUI(title::String, guiOn::Bool, gradOn::Bool)#, speed::Float64)
     # INITIATIONS
     oriColor = colorant"magenta"
     destColor = colorant"red"
+    
+    colorSet::Dict{Char, RGB} =
+            Dict('.' => colorant"wheat",
+                 'G' => colorant"wheat",
+                 'S' => colorant"darkkhaki",
+                 'W' => colorant"dodgerblue",
+                 'T' => colorant"forestgreen",
+                 '@' => colorant"black",
+                 'O' => colorant"black")
+
     mapMatrix = read_map(title)
-    global colorMatrix = map(set_color, mapMatrix)
+    global colorMatrix = map((x -> colorSet[x]), mapMatrix)
 
     # Setting canvas and window
     h, w = size(mapMatrix)
@@ -216,9 +216,34 @@ function dijkstraGUI(title::String, guiOn::Bool, gradOn::Bool)#, speed::Float64)
             # Reset !
             done = false
             waitOrigin = waitDest = true
-            colorMatrix = map(set_color, mapMatrix)
+            colorMatrix = map((x -> colorSet[x]), mapMatrix)
             draw(canvas)
         end
     end
     showall(mapWindow)
 end
+
+#=
+function set_color(c::Char)
+    if c == '.' || c == 'G'
+        return colorant"wheat"        # Ground
+    elseif c == 'S'
+        return colorant"darkkhaki"    # Swamp
+    elseif c == 'W'
+        return colorant"dodgerblue"   # Water
+    elseif c == 'T'
+        return colorant"forestgreen"  # Trees 
+    elseif c == '@' || c == 'O'
+        return colorant"black"        # Out of bounds
+    elseif c == 'X'
+        return colorant"lime"         # Source
+    elseif c == 'Y'
+        return colorant"red"          # Destination
+    elseif c == 'P'
+        return colorant"mediumpurple" # Path
+    elseif c == 'Q'
+        return colorant"mediumorchid" # Slowed path
+    end
+end
+=#
+

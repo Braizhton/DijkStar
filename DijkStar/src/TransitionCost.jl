@@ -1,6 +1,27 @@
 function transition_cost(start::Char,dest::Char)
     inf = typemax(Int64)
 
+    tileIndex::Dict{Char, Int64} = Dict('@' => 1,
+                                        'O' => 1,
+                                        'T' => 1,
+                                        '.' => 2,
+                                        'G' => 2,
+                                        'S' => 3,
+                                        'W' => 4)
+    #   @ . S W
+    # @ - - - -
+    # . - - - -
+    # S - - - -
+    # W - - - -
+    costMatrix::Matrix{Int64} = [inf inf inf inf;
+                                 inf  1   3  inf;
+                                 inf  3   5  inf;
+                                 inf inf inf  1]
+
+    return costMatrix[tileIndex[start], tileIndex[dest]]
+end
+
+#=
     if dest == '@' || dest == 'O' || dest == 'T'    # Out of bounds or trees
         return inf
     end
@@ -31,3 +52,4 @@ function transition_cost(start::Char,dest::Char)
         end
     end
 end
+=#
