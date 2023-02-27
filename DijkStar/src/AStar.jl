@@ -3,6 +3,13 @@ include("ReadMap.jl")
 include("MapWindow.jl")
 using DataStructures
 
+import Base.Ordering
+import Base.lt
+struct AStarOrder <: Ordering end
+# Order is based on the distance to origin + the distance to destination
+# In case of equality, on distance to destination
+lt(::AStarOrder, (x1, y1), (x2, y2)) = x1 + y1 < x2 + y2 || x1 + y1 == x2 + y2 && y1 > y2
+
 function astar(mapTitle::String,
                ori::Tuple{Int64,Int64},
                dest::Tuple{Int64,Int64})
@@ -12,12 +19,12 @@ function astar(mapTitle::String,
     mapMatrix = read_map(mapTitle)  # Map matrix
     height, width = size(mapMatrix) # Dimensions
    
-    dist = fill(inf, (height,width))                          # Distance of each point from the origin
-    visited = fill(false, (height,width))                     # Indicates if the shortest path to a point has been found
-    prec = Matrix{Tuple{Int64,Int64}}(undef, height, width)   # Indicates for each point the path preceding point
-    pq = PriorityQueue{Tuple{Int64, Int64}, Int64}()          # Tracking the unprocessed point with minimum distance to the origin
+    dist = fill(inf, (height,width))
+    visited = fill(false, (height,width))
+    prec = Matrix{Tuple{Int64,Int64}}(undef, height, width)
+    pq = PriorityQueue{Tuple{Int64, Int64}, Tuple{Int64, Int64}}(AStarOrder())
 
-    adj = Dict('N' => (0,0),    # Setting a dictionnary to process adjacent points
+    adj = Dict('N' => (0,0),
                'S' => (0,0),
                'W' => (0,0),
                'E' => (0,0))
@@ -36,19 +43,19 @@ function astar(mapTitle::String,
                                  inf  3   5  inf; # S
                                  inf inf inf  1]  # W
     # BEGIN
-    dist[ori[1], ori[2]] = 0    # Setting the origin's distance from itself
-    push!(pq, ori => 0)         # Initiating the priority queue
+    dist[ori[1], ori[2]] = 0
+    push!(pq, ori => (0,abs(dest[1]-ori[1]) + abs(dest[2]-ori[2])))
 
     newPoints = true
     while newPoints
         new = false
 
-        (min_x, min_y), min = first(pq)     # Getting the point with minimum distance
-        min = dist[min_x, min_y]            # Setting right minium distance
-        dequeue!(pq)                        # Removing the point being processed
-        visited[min_x, min_y] = true        # Setting point as visited        
+        (min_x, min_y), min = first(pq) # Getting the point with minimum distance
+        min = dist[min_x, min_y]        # Setting right minium distance
+        dequeue!(pq)                    # Removing the point being processed
+        visited[min_x, min_y] = true    # Setting point as visited        
         
-        if (min_x, min_y) == dest           # Breaking if a shortest path has been found for the destination
+        if (min_x, min_y) == dest       # Breaking if a shortest path has been found for the destination
             break
         end
         
@@ -78,7 +85,9 @@ function astar(mapTitle::String,
                 if (!visited[x,y] && newDist < dist[x,y] && dist[min_x,min_y]!=inf)
                     dist[x,y] = newDist
                     prec[x,y] = (min_x,min_y)
-                    push!(pq, (x,y) => newDist + distToDest)
+                    # Pushing with an existing key isn't a problem
+                    # Because it just updates the value associated with the key
+                    push!(pq, (x,y) => (newDist,distToDest))
                     newPoints = true
                 end
             end

@@ -7,7 +7,9 @@ function draw_map_window(map::Matrix{Char},
                          dest::Tuple{Int64,Int64},
                          title::String)
     h, w  = size(map)
-    scale = w/h
+    scale = ceil(Int, 950/h)
+    hc = scale*h
+    wc = scale*w
    
     # Defining some colors
     purple  = colorant"mediumpurple"
@@ -25,7 +27,7 @@ function draw_map_window(map::Matrix{Char},
                  'O' => colorant"black")
    
     # Setting canvas and window
-    canvas = @GtkCanvas(ceil(950*scale),950)
+    canvas = @GtkCanvas(wc,hc)
     box = GtkBox(:h)
     push!(box,canvas)
     set_gtk_property!(box,:expand,canvas,true)
