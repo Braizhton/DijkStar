@@ -1,7 +1,7 @@
 include("ReadMap.jl")
 #include("TransitionCost.jl")
 include("Dijkstra.jl")
-using DataStructures, Gtk, Colors
+using DataStructures, Gtk, Colors, FixedPointNumbers
 
 function mapDraw(canvas::GtkCanvas)
     ctx = getgc(canvas)
@@ -24,7 +24,7 @@ function findShowPath(canvas::GtkCanvas,
                       ori::Tuple{Int64,Int64},
                       dest::Tuple{Int64, Int64},
                       mapMatrix::Matrix{Char},
-                      colorMatrix,
+                      colorMatrix::Matrix{RGB{FixedPointNumbers.N0f8}},
                       gradOn::Bool)#, speed::Float64)
     # Colors
     gradStart = colorant"lime"
