@@ -8,6 +8,9 @@ function draw_map_window(map::Matrix{Char},
                          title::String)
     h, w  = size(map)
     scale = ceil(Int, 950/h)
+    if scale*h > 1000
+        scale -= 1
+    end
     hc = scale*h
     wc = scale*w
    
