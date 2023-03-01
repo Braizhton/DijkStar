@@ -1,8 +1,3 @@
-include("ReadMap.jl")
-#include("TransitionCost.jl")
-include("Dijkstra.jl")
-using DataStructures, Gtk, Colors, FixedPointNumbers
-
 function mapDraw(canvas::GtkCanvas)
     ctx = getgc(canvas)
 
@@ -23,7 +18,7 @@ end
 function findShowPath(canvas::GtkCanvas,
                       ori::Tuple{Int64,Int64},
                       dest::Tuple{Int64, Int64},
-                      mapMatrix::Matrix{Char},
+                      mapMatrix::Matrix{Int64},
                       colorMatrix::Matrix{RGB{FixedPointNumbers.N0f8}},
                       gradOn::Bool)#, speed::Float64)
     # Colors
@@ -45,21 +40,15 @@ function findShowPath(canvas::GtkCanvas,
                          length=floor(Int, sqrt(h^2+w^2))))
 
     
-    adj = Vector{Tuple{Int64,Int64}}(undef, 4)  # Setting a vector to process adjacent points
-
-    tileIndex::Dict{Char, Int64} = Dict('@' => 1,
-                                        'O' => 1,
-                                        'T' => 1,
-                                        '.' => 2,
-                                        'G' => 2,
-                                        'S' => 3,
-                                        'W' => 4)
-
-    # Zero for non passable      @   .  S  W
-    costMatrix::Matrix{Int64} = [-1 -1 -1 -1; # @
-                                 -1  1  3 -1; # .
-                                 -1  3  5 -1; # S
-                                 -1 -1 -1  1] # W
+    adj = Vector{Tuple{Int64,Int64}}(undef, 4)  # To collect adjacent points
+    
+    # -1 for non passable
+    #                             @   .  S  W  T
+    costMatrix::Matrix{Int64} = [-1 -1 -1 -1 -1; # @
+                                 -1  1  3 -1 -1; # .
+                                 -1  3  5 -1 -1; # S
+                                 -1 -1 -1  1 -1; # W
+                                 -1 -1 -1 -1 -1] # T
 
     # BEGIN
     dist[ori[1], ori[2]] = 0    # Setting the origin's distance from itself
@@ -69,17 +58,16 @@ function findShowPath(canvas::GtkCanvas,
     while newPoints
         new = false
 
-        (mx, my), min = first(pq)     # Getting the point with minimum distance
-        dequeue!(pq)                        # Removing the point being processed
-        if (mx, my) == dest           # Breaking if a shortest path has been found for the destination
+        (mx, my), min = dequeue_pair!(pq) # Getting the point with minimum distance
+        if (mx, my) == dest               # Breaking if a shortest path has been found
             break
         end
-        visited[mx, my] = true               # Setting point as visited        
+        visited[mx, my] = true            # Setting point as visited        
+
         if (mx,my) != ori
             # Setting visited on canvas
-            colorMatrix[mx, my] = grad[floor(Int, sqrt(
-                                                        (ori[1]-mx)^2 +
-                                                        (ori[2]-my)^2)+1)]
+            colorMatrix[mx, my] =
+                grad[floor(Int, sqrt((ori[1]-mx)^2+(ori[2]-my)^2)+1)]
         end
         
         if gradOn
@@ -98,8 +86,7 @@ function findShowPath(canvas::GtkCanvas,
             # Checking if the point is inbounds
             if (x >= 1 && x <= w && y >= 1 && y <= h)
                 # Calculating transition cost
-                tc = costMatrix[tileIndex[mapMatrix[mx,my]],
-                                tileIndex[mapMatrix[x,y]]]
+                tc = costMatrix[mapMatrix[mx,my], mapMatrix[x,y]]
                 # Checking if the point is a wall
                 if tc < 0
                     visited[x,y] = true # Set as visited and skip the process
@@ -114,7 +101,7 @@ function findShowPath(canvas::GtkCanvas,
                 end
 
                 newDist = dist[mx,my] + tc # Current distance + cost to the adjacent point
-                if (!visited[x,y] && newDist < dist[x,y] && dist[mx,my]!=inf)
+                if (!visited[x,y] && newDist < dist[x,y])# && dist[mx,my]!=inf)
                     dist[x,y] = newDist          # Updating shortest distance
                     prec[x,y] = (mx,my)    # Setting parent
                     push!(pq, (x,y) => newDist)  # Adding the new distance
@@ -150,16 +137,14 @@ function dijkstraGUI(title::String, guiOn::Bool, gradOn::Bool)#, speed::Float64)
     # INITIATIONS
     oriColor = colorant"magenta"
     destColor = colorant"red"
-    
-    colorSet::Dict{Char, RGB} =
-            Dict('.' => colorant"wheat",
-                 'G' => colorant"wheat",
-                 'S' => colorant"darkkhaki",
-                 'W' => colorant"dodgerblue",
-                 'T' => colorant"forestgreen",
-                 '@' => colorant"black",
-                 'O' => colorant"black")
+   
 
+    colorSet = [colorant"black",
+                colorant"wheat",
+                colorant"darkkhaki",
+                colorant"dodgerblue",
+                colorant"forestgreen"]
+   
     mapMatrix = read_map(title)
     global colorMatrix = map((x -> colorSet[x]), mapMatrix)
 
@@ -216,7 +201,7 @@ function dijkstraGUI(title::String, guiOn::Bool, gradOn::Bool)#, speed::Float64)
             # Reset !
             done = false
             waitOrigin = waitDest = true
-            colorMatrix = map((x -> colorSet[x]), mapMatrix)
+            colorMatrix = (x -> colorSet[x]).(mapMatrix)
             draw(canvas)
         end
     end

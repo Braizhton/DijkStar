@@ -24,8 +24,18 @@ function read_map(map::String)
         mapMatrix[i,:] = collect(line)
         i = i + 1
     end
+    
+    tileIndex::Dict{Char, Int64} = Dict('@' => 1,
+                                        'O' => 1,
+                                        '.' => 2,
+                                        'G' => 2,
+                                        'S' => 3,
+                                        'W' => 4,
+                                        'T' => 5)
 
-    return mapMatrix
+    finalMatrix = (x -> tileIndex[x]).(mapMatrix)
+
+    return finalMatrix
 end
 
 # read_map(ARGS[1])

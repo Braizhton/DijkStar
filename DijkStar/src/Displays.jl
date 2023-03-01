@@ -1,7 +1,18 @@
-using Gtk
-using Colors
+function display_path(prec::Matrix{Tuple{Int64,Int64}},
+                     ori::Tuple{Int64,Int64},
+                     dest::Tuple{Int64,Int64})
+    pathLength = 1
+    (x,y) = prec[dest[1], dest[2]]
+    while (x,y) != ori
+        pathLength += 1
+        println((x,y))
+        (x,y) = prec[x,y]
+    end
+    println(ori)
+    println("Path length from  ", ori, " to ", dest, ": ", pathLength)
+end
 
-function draw_map_window(map::Matrix{Char},
+function draw_map_window(map::Matrix{Int64},
                          prec::Matrix{Tuple{Int64,Int64}},
                          ori::Tuple{Int64,Int64},
                          dest::Tuple{Int64,Int64},
@@ -20,15 +31,12 @@ function draw_map_window(map::Matrix{Char},
     red     = colorant"red"
     green   = colorant"lime"
     
-    colorSet::Dict{Char, RGB} =
-            Dict('.' => colorant"wheat",
-                 'G' => colorant"wheat",
-                 'S' => colorant"darkkhaki",
-                 'W' => colorant"dodgerblue",
-                 'T' => colorant"forestgreen",
-                 '@' => colorant"black",
-                 'O' => colorant"black")
-   
+    colorSet = [colorant"black",
+                colorant"wheat",
+                colorant"darkkhaki",
+                colorant"dodgerblue",
+                colorant"forestgreen"]
+                    
     # Setting canvas and window
     canvas = @GtkCanvas(wc,hc)
     box = GtkBox(:h)
@@ -78,20 +86,3 @@ function draw_map_window(map::Matrix{Char},
     end
     showall(mapWindow)
 end
-
-#=
-function set_color(c::Char, ctx)
-    if c == '.' || c == 'G'
-        set_source(ctx, colorant"wheat2")      # Ground
-    elseif c == 'S'
-        set_source(ctx, colorant"darkkhaki")   # Swamp
-    elseif c == 'W'
-        set_source(ctx, colorant"dodgerblue")  # Water
-    elseif c == 'T'
-        set_source(ctx, colorant"forestgreen") # Trees 
-    elseif c == '@' || c == 'O'
-        set_source(ctx, colorant"black")       # Black (out of bounds)
-    end
-end
-=#
-
