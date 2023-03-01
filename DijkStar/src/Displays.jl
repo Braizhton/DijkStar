@@ -1,6 +1,6 @@
 function display_path(prec::Matrix{Tuple{Int64,Int64}},
-                     ori::Tuple{Int64,Int64},
-                     dest::Tuple{Int64,Int64})
+                      ori::Tuple{Int64,Int64},
+                      dest::Tuple{Int64,Int64})
     pathLength = 1
     (x,y) = prec[dest[1], dest[2]]
     while (x,y) != ori
@@ -14,6 +14,7 @@ end
 
 function draw_map_window(map::Matrix{Int64},
                          prec::Matrix{Tuple{Int64,Int64}},
+                         visited::Matrix{Bool},
                          ori::Tuple{Int64,Int64},
                          dest::Tuple{Int64,Int64},
                          title::String)
@@ -28,14 +29,20 @@ function draw_map_window(map::Matrix{Int64},
     # Defining some colors
     purple  = colorant"mediumpurple"
     purpleb = colorant"mediumorchid"
-    red     = colorant"red"
-    green   = colorant"lime"
+    gradEnd = colorant"red"
+    gradStart = colorant"lime"
     
     colorSet = [colorant"black",
                 colorant"wheat",
                 colorant"darkkhaki",
                 colorant"dodgerblue",
                 colorant"forestgreen"]
+    
+    grad = convert.(RGB,
+                    range(HSL(gradStart),
+                         stop=HSL(gradEnd),
+                         length=floor(Int, sqrt(h^2+w^2))))
+
                     
     # Setting canvas and window
     canvas = @GtkCanvas(wc,hc)
@@ -56,13 +63,17 @@ function draw_map_window(map::Matrix{Int64},
         # Drawing map
         for i = 1:w, j = 1:h
             rectangle(ctx, (i-1)*scalew, (j-1)*scaleh, scalew, scaleh)
-            set_source(ctx, colorSet[map[j,i]]) # Setting graphic context color
-            fill(ctx)                           # Filling canvas
+            if visited[j,i]
+                set_source(ctx, grad[floor(Int, sqrt((ori[1]-i)^2+(ori[2]-j)^2)+1)])
+            else
+                set_source(ctx, colorSet[map[j,i]])
+            end
+            fill(ctx) # Printing
         end
         
         # Drawing source
         rectangle(ctx, (ori[2]-1)*scalew, (ori[1]-1)*scaleh, scalew, scaleh)
-        set_source(ctx, green)
+        set_source(ctx, gradStart)
         fill(ctx)
         
         # Drawing shortest path
@@ -81,7 +92,7 @@ function draw_map_window(map::Matrix{Int64},
         
         # Drawing destination
         rectangle(ctx, (dest[2]-1)*scalew, (dest[1]-1)*scaleh, scalew, scaleh)
-        set_source(ctx, red)
+        set_source(ctx, gradEnd)
         fill(ctx)
     end
     showall(mapWindow)

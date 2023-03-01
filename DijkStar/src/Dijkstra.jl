@@ -74,6 +74,6 @@ function dijkstra(mapTitle::String,
         display_path(prec, ori, dest)
 
         ###   GRAPHICS   ###
-        draw_map_window(mapMatrix, prec, ori, dest, mapTitle)
+        draw_map_window(mapMatrix, prec, visited, ori, dest, mapTitle)
     end
 end

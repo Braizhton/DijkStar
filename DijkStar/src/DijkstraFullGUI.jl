@@ -26,6 +26,12 @@ function findShowPath(canvas::GtkCanvas,
     gradEnd = colorant"red"
     normalPath = colorant"mediumpurple"
     slowPath = colorant"mediumorchid"
+    
+    grad = convert.(RGB,
+                   range(HSL(gradStart),
+                         stop=HSL(gradEnd),
+                         length=floor(Int, sqrt(h^2+w^2))))
+
 
     # Initiations
     h, w = size(mapMatrix) 
@@ -34,11 +40,6 @@ function findShowPath(canvas::GtkCanvas,
     visited = fill(false, (h,w))
     prec = Matrix{Tuple{Int64,Int64}}(undef, h, w)
     pq = PriorityQueue{Tuple{Int64, Int64}, Int64}()
-    grad = convert.(RGB,
-                   range(HSL(gradStart),
-                         stop=HSL(gradEnd),
-                         length=floor(Int, sqrt(h^2+w^2))))
-
     
     adj = Vector{Tuple{Int64,Int64}}(undef, 4)  # To collect adjacent points
     
