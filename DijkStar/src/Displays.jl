@@ -20,7 +20,7 @@ function draw_map_window(map::Matrix{Int64},
                          title::String)
     h, w  = size(map)
     scale = ceil(Int, 950/h)
-    if scale*h > 1000
+    if scale*h > 1080
         scale -= 1
     end
     hc = scale*h

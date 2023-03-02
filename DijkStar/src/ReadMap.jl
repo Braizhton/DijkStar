@@ -24,7 +24,7 @@ function read_map(map::String)
         mapMatrix[i,:] = collect(line)
         i = i + 1
     end
-    
+
     tileIndex::Dict{Char, Int64} = Dict('@' => 1,
                                         'O' => 1,
                                         '.' => 2,

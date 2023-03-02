@@ -27,14 +27,14 @@ function findShowPath(canvas::GtkCanvas,
     normalPath = colorant"mediumpurple"
     slowPath = colorant"mediumorchid"
     
+    # Initiations
+    h, w = size(mapMatrix) 
+
     grad = convert.(RGB,
                    range(HSL(gradStart),
                          stop=HSL(gradEnd),
                          length=floor(Int, sqrt(h^2+w^2))))
 
-
-    # Initiations
-    h, w = size(mapMatrix) 
     inf = typemax(Int64)
     dist = fill(inf, (h,w))
     visited = fill(false, (h,w))
@@ -172,8 +172,10 @@ function dijkstraGUI(title::String, guiOn::Bool, gradOn::Bool)#, speed::Float64)
         if event.button == 1
             x = ceil(Int, event.y/scale) # Index i (height)
             y = ceil(Int, event.x/scale) # Index j (width)
-            # println("x : ", x)
-            # println("y : ", y)
+            if !done
+                println("x : ", x)
+                println("y : ", y)
+            end
             if waitOrigin
                 waitOrigin = false
                 ori = (x,y)
@@ -196,7 +198,7 @@ function dijkstraGUI(title::String, guiOn::Bool, gradOn::Bool)#, speed::Float64)
                              mapMatrix, colorMatrix,
                              gradOn)#, speed)
             else
-                dijkstra(title, ori, dest)
+                dijkstra(title, ori, dest, true)
             end
         elseif done
             # Reset !
