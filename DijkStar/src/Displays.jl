@@ -1,15 +1,21 @@
-function display_path(prec::Matrix{Tuple{Int64,Int64}},
+function display_path(map::Matrix{Int64},
+                      prec::Matrix{Tuple{Int64,Int64}},
+                      cost::Matrix{Int64},
                       ori::Tuple{Int64,Int64},
                       dest::Tuple{Int64,Int64})
-    pathLength = 1
-    (x,y) = prec[dest[1], dest[2]]
+    pathLength = 0
+    pathCost = 0
+    (x,y) = dest
     while (x,y) != ori
         pathLength += 1
         println((x,y))
+        cur = (x,y)
         (x,y) = prec[x,y]
+        pathCost += cost[map[x,y],map[cur[1],cur[2]]]
     end
     println(ori)
-    println("Path length from  ", ori, " to ", dest, ": ", pathLength)
+    println("Path length from  ", ori, " to ", dest, " : ", pathLength)
+    println("Path cost : ", pathCost)
 end
 
 function draw_map_window(map::Matrix{Int64},

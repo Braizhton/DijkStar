@@ -29,6 +29,7 @@ function findShowPath(canvas::GtkCanvas,
     
     # Initiations
     h, w = size(mapMatrix) 
+    nbVisited = 0
 
     grad = convert.(RGB,
                    range(HSL(gradStart),
@@ -64,6 +65,7 @@ function findShowPath(canvas::GtkCanvas,
             break
         end
         visited[mx, my] = true            # Setting point as visited        
+        nbVisited += 1
 
         if (mx,my) != ori
             # Setting visited on canvas
@@ -115,6 +117,7 @@ function findShowPath(canvas::GtkCanvas,
     # Drawing shortest path
     pathLength = 1
     (x,y) = prec[dest[1], dest[2]]
+    cost = costMatrix[mapMatrix[dest[1],dest[2]],mapMatrix[x,y]]
     while (x,y) != ori
         pathLength += 1
         if mapMatrix[x,y] == 'S'
@@ -122,7 +125,9 @@ function findShowPath(canvas::GtkCanvas,
         else
             colorMatrix[x,y] = normalPath
         end
+        cur = (x,y)
         (x,y) = prec[x,y]
+        pathCost += cost[map[x,y],map[cur[1],cur[2]]]
 
         if gradOn
             draw(canvas) # Refreshing
@@ -130,6 +135,7 @@ function findShowPath(canvas::GtkCanvas,
         #sleep(speed)
     end
     println("Path length from  ", ori, " to ", dest, " : ", pathLength)
+    println("Path cost : ", pathCost)
     draw(canvas)
     #END
 end
@@ -173,8 +179,8 @@ function dijkstraGUI(title::String, guiOn::Bool, gradOn::Bool)#, speed::Float64)
             x = ceil(Int, event.y/scale) # Index i (height)
             y = ceil(Int, event.x/scale) # Index j (width)
             if !done
-                println("x : ", x)
-                println("y : ", y)
+                println("x : ", y)
+                println("y : ", x)
             end
             if waitOrigin
                 waitOrigin = false

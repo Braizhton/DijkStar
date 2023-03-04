@@ -1,12 +1,15 @@
 function dijkstra(mapTitle::String,
-                  ori::Tuple{Int64,Int64},
-                  dest::Tuple{Int64,Int64},
+                  o::Tuple{Int64,Int64},
+                  d::Tuple{Int64,Int64},
                   displayOn::Bool)
 
     # INITIATIONS
     inf = typemax(Int64)
     mapMatrix = read_map(mapTitle)  # Map matrix
     height, width = size(mapMatrix) # Dimensions
+    nbVisited = 0
+    ori = (o[2],o[1])
+    dest = (d[2],d[1])
    
     dist = fill(inf, (height,width))                          # Distance of each point from the origin
     visited = fill(false, (height,width))                     # Indicates if the shortest path to a point has been found
@@ -16,7 +19,7 @@ function dijkstra(mapTitle::String,
     adj = Vector{Tuple{Int64,Int64}}(undef, 4)  # To collect adjacent points
     
     # -1 for non passable 
-    #              @   .  S  W  T
+    #              @  .  S  W  T
     costMatrix = [-1 -1 -1 -1 -1; # @
                   -1  1  3 -1 -1; # .
                   -1  3  5 -1 -1; # S
@@ -36,7 +39,7 @@ function dijkstra(mapTitle::String,
             break
         end
         visited[mx, my] = true              # Setting point as visited        
-        
+        nbVisited += 1
         
         # Collecting adjacent points
         adj[1] = (mx-1, my)
@@ -71,7 +74,7 @@ function dijkstra(mapTitle::String,
     # PRINTING
     if displayOn
         ### COMMAND LINE ###
-        display_path(prec, ori, dest)
+        display_path(mapMatrix, prec, costMatrix, ori, dest)
 
         ###   GRAPHICS   ###
         draw_map_window(mapMatrix, prec, visited, ori, dest, mapTitle)

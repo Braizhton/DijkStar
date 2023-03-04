@@ -4,21 +4,23 @@ struct AStarOrder <: Ordering end
 lt(::AStarOrder, (x1, y1), (x2, y2)) = x1 + y1 < x2 + y2 || x1 + y1 == x2 + y2 && y1 > y2
 
 function astar(mapTitle::String,
-               ori::Tuple{Int64,Int64},
-               dest::Tuple{Int64,Int64},
+               o::Tuple{Int64,Int64},
+               d::Tuple{Int64,Int64},
                displayOn::Bool)
 
     # INITIATIONS
     inf = typemax(Int64)            # Infinity
     mapMatrix = read_map(mapTitle)  # Map matrix
     height, width = size(mapMatrix) # Dimensions
+    nbVisited = 0
+    ori = (o[2],o[1])
+    dest = (d[2],d[1])
    
     dist = fill(inf, (height,width))
     visited = fill(false, (height,width))
     prec = Matrix{Tuple{Int64,Int64}}(undef, height, width)
     pq = PriorityQueue{Tuple{Int64, Int64}, Tuple{Int64, Int64}}(AStarOrder())
 
-    
     adj = Vector{Tuple{Int64,Int64}}(undef, 4)  # To collect adjacent points
 
     # -1 for non passable
@@ -42,7 +44,8 @@ function astar(mapTitle::String,
         if (mx, my) == dest     # Breaking if a shortest path has been found
             break
         end
-        visited[mx, my] = true  # Setting point as visited        
+        visited[mx, my] = true  # Setting point as visited
+        nbVisited += 1
         
         # Collecting adjacent points
         adj[1] = (mx-1, my)
@@ -82,7 +85,7 @@ function astar(mapTitle::String,
     # PRINTING
     if displayOn
         ### COMMAND LINE ### 
-        display_path(prec, ori, dest)
+        display_path(mapMatrix, prec, costMatrix, ori, dest)
 
         ###   GRAPHICS   ###
         draw_map_window(mapMatrix, prec, visited, ori, dest, mapTitle)
