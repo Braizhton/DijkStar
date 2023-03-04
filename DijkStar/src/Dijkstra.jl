@@ -1,9 +1,18 @@
-function dijkstra(mapTitle::String,
+#=function dijkstra(mapTitle::String,
                   o::Tuple{Int64,Int64},
                   d::Tuple{Int64,Int64},
-                  displayOn::Bool)
+                  displayOn::Bool) =#
+function dijkstra(mapMatrix::Matrix{Int64},
+                  dist::Matrix{Int64},
+                  visited::Matrix{Bool},
+                  prec::Matrix{Tuple{Int64,Int64}},
+                  adj::Vector{Tuple{Int64,Int64}},
+                  width::Int64, height::Int64,
+                  nbVisited::Int64,
+                  ori::Tuple{Int64,Int64},
+                  dest::Tuple{Int64,Int64})
 
-    # INITIATIONS
+    #= INITIATIONS
     inf = typemax(Int64)
     mapMatrix = read_map(mapTitle)  # Map matrix
     height, width = size(mapMatrix) # Dimensions
@@ -26,9 +35,10 @@ function dijkstra(mapTitle::String,
                   -1 -1 -1  1 -1; # W
                   -1 -1 -1 -1 -1] # T
 
-    # BEGIN
-    dist[ori[1], ori[2]] = 0    # Setting the origin's distance from itself
-    push!(pq, ori => 0)         # Initiating the priority queue
+    # BEGIN =#
+    dist[ori[1], ori[2]] = 0                         # Initiating origin
+    pq = PriorityQueue{Tuple{Int64, Int64}, Int64}() # Tracking the unprocessed point
+    push!(pq, ori => 0)                              # Initiating the priority queue
 
     newPoints = true
     while newPoints
@@ -71,12 +81,12 @@ function dijkstra(mapTitle::String,
     end
     # END
 
-    # PRINTING
+    #= PRINTING
     if displayOn
         ### COMMAND LINE ###
         display_path(mapMatrix, prec, costMatrix, ori, dest)
 
         ###   GRAPHICS   ###
         draw_map_window(mapMatrix, prec, visited, ori, dest, mapTitle)
-    end
+    end =#
 end

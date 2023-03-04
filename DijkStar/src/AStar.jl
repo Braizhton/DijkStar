@@ -3,12 +3,22 @@ struct AStarOrder <: Ordering end
 # In case of equality, on distance to destination
 lt(::AStarOrder, (x1, y1), (x2, y2)) = x1 + y1 < x2 + y2 || x1 + y1 == x2 + y2 && y1 > y2
 
+#=
 function astar(mapTitle::String,
                o::Tuple{Int64,Int64},
                d::Tuple{Int64,Int64},
-               displayOn::Bool)
+               displayOn::Bool) =#
+function astar(mapMatrix::Matrix{Int64},
+               dist::Matrix{Int64},
+               visited::Matrix{Bool},
+               prec::Matrix{Tuple{Int64,Int64}},
+               adj::Vector{Tuple{Int64,Int64}},
+               width::Int64, height::Int64,
+               nbVisited::Int64,
+               ori::Tuple{Int64,Int64},
+               dest::Tuple{Int64,Int64})
 
-    # INITIATIONS
+    #= INITIATIONS
     inf = typemax(Int64)            # Infinity
     mapMatrix = read_map(mapTitle)  # Map matrix
     height, width = size(mapMatrix) # Dimensions
@@ -31,8 +41,9 @@ function astar(mapTitle::String,
                   -1 -1 -1  1 -1; # W
                   -1 -1 -1 -1 -1] # T
 
-    # BEGIN
+    # BEGIN =#
     dist[ori[1], ori[2]] = 0
+    pq = PriorityQueue{Tuple{Int64, Int64}, Tuple{Int64, Int64}}(AStarOrder())
     push!(pq, ori => (0,0))
 
     newPoints = true
@@ -82,12 +93,12 @@ function astar(mapTitle::String,
     end
     # END
 
-    # PRINTING
+    #= PRINTING
     if displayOn
         ### COMMAND LINE ### 
         display_path(mapMatrix, prec, costMatrix, ori, dest)
 
         ###   GRAPHICS   ###
         draw_map_window(mapMatrix, prec, visited, ori, dest, mapTitle)
-    end
+    end =#
 end
