@@ -13,13 +13,16 @@ include("ReadMap.jl")
 include("InitDijkStar.jl")
 include("Displays.jl")
 
-export dijkstra
+#export dijkstra
 include("Dijkstra.jl")
 
-export astar
+#export astar
 include("AStar.jl")
 
 export dijkstraGUI
 include("DijkstraFullGUI.jl")
+
+export main
+include("Main.jl")
 
 end # module DijkStar
