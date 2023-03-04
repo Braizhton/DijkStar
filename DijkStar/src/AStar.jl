@@ -1,7 +1,7 @@
 struct AStarOrder <: Ordering end
 # Order is based on the distance to origin + the distance to destination
 # In case of equality, on distance to destination
-lt(::AStarOrder, (x1, y1), (x2, y2)) = x1 + y1 < x2 + y2 || x1 + y1 == x2 + y2 && y1 > y2
+lt(::AStarOrder, (x1, y1), (x2, y2)) = x1 + y1 < x2 + y2 || x1 + y1 == x2 + y2 && y1 < y2
 
 function astar(mapTitle::String,
                o::Tuple{Int64,Int64},
