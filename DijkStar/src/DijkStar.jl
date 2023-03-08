@@ -1,5 +1,7 @@
 module DijkStar
 
+@enum State unvisited openned closed
+
 # For PriorityQueues
 using DataStructures
 # For GUI

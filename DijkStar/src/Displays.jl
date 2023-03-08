@@ -2,7 +2,8 @@ function display_path(map::Matrix{Int64},
                       prec::Matrix{Tuple{Int64,Int64}},
                       cost::Matrix{Int64},
                       ori::Tuple{Int64,Int64},
-                      dest::Tuple{Int64,Int64})
+                      dest::Tuple{Int64,Int64},
+                      nbVisited::Int64)
     pathLength = 0
     pathCost = 0
     (x,y) = dest
@@ -16,11 +17,12 @@ function display_path(map::Matrix{Int64},
     println(ori)
     println("Path length from  ", ori, " to ", dest, " : ", pathLength)
     println("Path cost : ", pathCost)
+    println("Number of visits : ", nbVisited)
 end
 
 function draw_map_window(map::Matrix{Int64},
                          prec::Matrix{Tuple{Int64,Int64}},
-                         state::Matrix{Bool},
+                         state::Matrix{State},
                          ori::Tuple{Int64,Int64},
                          dest::Tuple{Int64,Int64},
                          title::String)
@@ -72,7 +74,7 @@ function draw_map_window(map::Matrix{Int64},
             rectangle(ctx, (i-1)*scalew, (j-1)*scaleh, scalew, scaleh)
             if state[j,i] == closed
                 set_source(ctx, grad[floor(Int, sqrt((ori[1]-i)^2+(ori[2]-j)^2)+1)])
-            elseif state[j,i] == visited
+            elseif state[j,i] == openned
                 set_source(ctx, visited_color)
             else
                 set_source(ctx, colorSet[map[j,i]])

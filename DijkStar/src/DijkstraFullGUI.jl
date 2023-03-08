@@ -26,6 +26,7 @@ function findShowPath(canvas::GtkCanvas,
     gradEnd = colorant"red"
     normalPath = colorant"mediumpurple"
     slowPath = colorant"mediumorchid"
+    visitedColor = colorant"cyan"
     
     # Initiations
     h, w = size(mapMatrix) 
@@ -36,38 +37,38 @@ function findShowPath(canvas::GtkCanvas,
                          stop=HSL(gradEnd),
                          length=floor(Int, sqrt(h^2+w^2))))
 
-    inf = typemax(Int64)
-    dist = fill(inf, (h,w))
-    visited = fill(false, (h,w))
+    dist = Matrix{Int64}(undef, h, w)
+    state = fill(unvisited, h, w)
     prec = Matrix{Tuple{Int64,Int64}}(undef, h, w)
     pq = PriorityQueue{Tuple{Int64, Int64}, Int64}()
     
     adj = Vector{Tuple{Int64,Int64}}(undef, 4)  # To collect adjacent points
     
-    # -1 for non passable
-    #                             @   .  S  W  T
-    costMatrix::Matrix{Int64} = [-1 -1 -1 -1 -1; # @
-                                 -1  1  3 -1 -1; # .
-                                 -1  3  5 -1 -1; # S
-                                 -1 -1 -1  1 -1; # W
-                                 -1 -1 -1 -1 -1] # T
+    #= -1 for non passable
+    #              @  .  S  W  T
+    costMatrix = [-1 -1 -1 -1 -1; # @
+                  -1  1  3 -1 -1; # .
+                  -1  3  5 -1 -1; # S
+                  -1 -1 -1  1 -1; # W
+                  -1 -1 -1 -1 -1] # T
+    =#
+    costMatrix = [-1 -1 -1 -1 -1; # @
+                  -1  1  5 -1 -1; # .
+                  -1  1  5 -1 -1; # S
+                  -1 -1 -1  1 -1; # W
+                  -1 -1 -1 -1 -1] # T
 
     # BEGIN
     dist[ori[1], ori[2]] = 0    # Setting the origin's distance from itself
     push!(pq, ori => 0)         # Initiating the priority queue
 
-    newPoints = true
-    while newPoints
-        new = false
+    (mx,my) = ori
+    while !((mx,my) == dest || isempty(pq))
 
-        (mx, my), min = dequeue_pair!(pq) # Getting the point with minimum distance
-        if (mx, my) == dest               # Breaking if a shortest path has been found
-            break
-        end
-        visited[mx, my] = true            # Setting point as visited        
-        nbVisited += 1
+        (mx, my) = dequeue!(pq) # Getting the point with minimum distance
+        state[mx, my] = closed            # Setting point as visited        
 
-        if (mx,my) != ori
+        if !((mx,my) == ori || (mx,my) == dest)
             # Setting visited on canvas
             colorMatrix[mx, my] =
                 grad[floor(Int, sqrt((ori[1]-mx)^2+(ori[2]-my)^2)+1)]
@@ -88,11 +89,15 @@ function findShowPath(canvas::GtkCanvas,
         for (x,y) in adj
             # Checking if the point is inbounds
             if (x >= 1 && x <= w && y >= 1 && y <= h)
+                nstate = state[x,y]
+                nbVisited += 1
+                #colorMatrix[x,y] = visitedColor # Setting as openned on the canvas
+
                 # Calculating transition cost
                 tc = costMatrix[mapMatrix[mx,my], mapMatrix[x,y]]
                 # Checking if the point is a wall
                 if tc < 0
-                    visited[x,y] = true # Set as visited and skip the process
+                    state[x,y] = closed # Set as visited and skip the process
                     #=
                     colorMatrix[x,y] = last(grad) # Setting as unreachable on canvas
                     if gradOn
@@ -104,11 +109,19 @@ function findShowPath(canvas::GtkCanvas,
                 end
 
                 newDist = dist[mx,my] + tc # Current distance + cost to the adjacent point
-                if (!visited[x,y] && newDist < dist[x,y])# && dist[mx,my]!=inf)
-                    dist[x,y] = newDist          # Updating shortest distance
-                    prec[x,y] = (mx,my)    # Setting parent
-                    push!(pq, (x,y) => newDist)  # Adding the new distance
-                    newPoints = true             # Indicating new points to process
+                if nstate != closed
+                    newDist = dist[mx,my] + tc      # Current distance + transition cost
+                    if nstate == unvisited
+                        state[x,y] = openned        # Setting as open
+                        dist[x,y] = newDist         # Setting distance from origin
+                        prec[x,y] = (mx,my)         # Setting parent
+                        push!(pq, (x,y) => newDist) # Adding in priority queue
+
+                    elseif nstate == openned && newDist < dist[x,y]
+                        dist[x,y] = newDist         # Updating shortest distance
+                        prec[x,y] = (mx,my)         # Setting parent
+                        push!(pq, (x,y) => newDist) # Updating priority queue
+                    end
                 end
             end
         end
@@ -117,7 +130,7 @@ function findShowPath(canvas::GtkCanvas,
     # Drawing shortest path
     pathLength = 1
     (x,y) = prec[dest[1], dest[2]]
-    cost = costMatrix[mapMatrix[dest[1],dest[2]],mapMatrix[x,y]]
+    pathCost = costMatrix[mapMatrix[dest[1],dest[2]],mapMatrix[x,y]]
     while (x,y) != ori
         pathLength += 1
         if mapMatrix[x,y] == 'S'
@@ -127,7 +140,7 @@ function findShowPath(canvas::GtkCanvas,
         end
         cur = (x,y)
         (x,y) = prec[x,y]
-        pathCost += cost[map[x,y],map[cur[1],cur[2]]]
+        pathCost += costMatrix[mapMatrix[x,y],mapMatrix[cur[1],cur[2]]]
 
         #if gradOn
         #    draw(canvas) # Refreshing
@@ -136,6 +149,7 @@ function findShowPath(canvas::GtkCanvas,
     end
     println("Path length from  ", ori, " to ", dest, " : ", pathLength)
     println("Path cost : ", pathCost)
+    println("Visited nodes : ", nbVisited)
     draw(canvas)
     #END
 end
@@ -144,7 +158,6 @@ function dijkstraGUI(title::String, guiOn::Bool, gradOn::Bool)#, speed::Float64)
     # INITIATIONS
     oriColor = colorant"magenta"
     destColor = colorant"red"
-   
 
     colorSet = [colorant"black",
                 colorant"wheat",
@@ -178,16 +191,16 @@ function dijkstraGUI(title::String, guiOn::Bool, gradOn::Bool)#, speed::Float64)
         if event.button == 1
             x = ceil(Int, event.y/scale) # Index i (height)
             y = ceil(Int, event.x/scale) # Index j (width)
-            if !done
+            #=if !done
                 println("x : ", y)
                 println("y : ", x)
-            end
+            end=#
             if waitOrigin
                 waitOrigin = false
                 ori = (x,y)
                 colorMatrix[x,y] = oriColor
                 draw(canvas)
-            elseif waitDest
+            elseif waitDest && (x,y) != ori
                 waitDest = false
                 dest = (x,y)
                 colorMatrix[x,y] = destColor
@@ -199,10 +212,12 @@ function dijkstraGUI(title::String, guiOn::Bool, gradOn::Bool)#, speed::Float64)
         if !waitOrigin && !waitDest && !done
             done = true
             if guiOn
+                println("---------------------------")
                 findShowPath(canvas,
                              ori, dest,
                              mapMatrix, colorMatrix,
                              gradOn)#, speed)
+                #println("---------------------------")
             else
                 dijkstra(title, ori, dest, true)
             end
@@ -216,28 +231,3 @@ function dijkstraGUI(title::String, guiOn::Bool, gradOn::Bool)#, speed::Float64)
     end
     showall(mapWindow)
 end
-
-#=
-function set_color(c::Char)
-    if c == '.' || c == 'G'
-        return colorant"wheat"        # Ground
-    elseif c == 'S'
-        return colorant"darkkhaki"    # Swamp
-    elseif c == 'W'
-        return colorant"dodgerblue"   # Water
-    elseif c == 'T'
-        return colorant"forestgreen"  # Trees 
-    elseif c == '@' || c == 'O'
-        return colorant"black"        # Out of bounds
-    elseif c == 'X'
-        return colorant"lime"         # Source
-    elseif c == 'Y'
-        return colorant"red"          # Destination
-    elseif c == 'P'
-        return colorant"mediumpurple" # Path
-    elseif c == 'Q'
-        return colorant"mediumorchid" # Slowed path
-    end
-end
-=#
-
