@@ -20,7 +20,7 @@ end
 
 function draw_map_window(map::Matrix{Int64},
                          prec::Matrix{Tuple{Int64,Int64}},
-                         visited::Matrix{Bool},
+                         state::Matrix{Bool},
                          ori::Tuple{Int64,Int64},
                          dest::Tuple{Int64,Int64},
                          title::String)
@@ -33,8 +33,9 @@ function draw_map_window(map::Matrix{Int64},
     wc = scale*w
    
     # Defining some colors
-    purple  = colorant"mediumpurple"
-    purpleb = colorant"mediumorchid"
+    visited_color = colorant"cyan"
+    path_color = colorant"mediumpurple"
+    path_slow_color = colorant"mediumorchid"
     gradEnd = colorant"red"
     gradStart = colorant"lime"
     
@@ -69,8 +70,10 @@ function draw_map_window(map::Matrix{Int64},
         # Drawing map
         for i = 1:w, j = 1:h
             rectangle(ctx, (i-1)*scalew, (j-1)*scaleh, scalew, scaleh)
-            if visited[j,i]
+            if state[j,i] == closed
                 set_source(ctx, grad[floor(Int, sqrt((ori[1]-i)^2+(ori[2]-j)^2)+1)])
+            elseif state[j,i] == visited
+                set_source(ctx, visited_color)
             else
                 set_source(ctx, colorSet[map[j,i]])
             end
@@ -83,14 +86,14 @@ function draw_map_window(map::Matrix{Int64},
         fill(ctx)
         
         # Drawing shortest path
-        set_source(ctx, purple)
+        set_source(ctx, path_color)
         (x,y) = dest
         while (x,y) != ori
             rectangle(ctx, (y-1)*scalew, (x-1)*scaleh, scalew, scaleh)
             if map[x,y] == 'S'
-                set_source(ctx, purpleb) # Showing that the section is slowed
+                set_source(ctx, path_slow_color) # Showing that the section is slowed
             else
-                set_source(ctx, purple) # Showing normal path
+                set_source(ctx, path_color)      # Showing normal path
             end
             fill(ctx)
             (x,y) = prec[x,y]

@@ -129,9 +129,9 @@ function findShowPath(canvas::GtkCanvas,
         (x,y) = prec[x,y]
         pathCost += cost[map[x,y],map[cur[1],cur[2]]]
 
-        if gradOn
-            draw(canvas) # Refreshing
-        end
+        #if gradOn
+        #    draw(canvas) # Refreshing
+        #end
         #sleep(speed)
     end
     println("Path length from  ", ori, " to ", dest, " : ", pathLength)

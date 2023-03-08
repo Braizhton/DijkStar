@@ -4,6 +4,7 @@ function dijkstra(mapTitle::String,
                   displayOn::Bool)
 
     # INITIATIONS
+    @enum State openned visited closed
     inf = typemax(Int64)
     mapMatrix = read_map(mapTitle)  # Map matrix
     height, width = size(mapMatrix) # Dimensions
@@ -11,10 +12,10 @@ function dijkstra(mapTitle::String,
     ori = (o[2],o[1])
     dest = (d[2],d[1])
    
-    dist = fill(inf, (height,width))                          # Distance of each point from the origin
-    visited = fill(false, (height,width))                     # Indicates if the shortest path to a point has been found
-    prec = Matrix{Tuple{Int64,Int64}}(undef, height, width)   # Indicates for each point the path preceding point
-    pq = PriorityQueue{Tuple{Int64, Int64}, Int64}()          # Tracking the unprocessed point with minimum distance to the origin
+    dist = Matrix{Int64}(undef, height, width)                # Points' distance from origin
+    state = fill(openned, height, width)                      # Indicates nodes' state
+    prec = Matrix{Tuple{Int64,Int64}}(undef, height, width)   # Points' parent
+    pq = PriorityQueue{Tuple{Int64, Int64}, Int64}()          # Queue of visited points
 
     adj = Vector{Tuple{Int64,Int64}}(undef, 4)  # To collect adjacent points
     
@@ -30,16 +31,15 @@ function dijkstra(mapTitle::String,
     dist[ori[1], ori[2]] = 0    # Setting the origin's distance from itself
     push!(pq, ori => 0)         # Initiating the priority queue
 
-    newPoints = true
-    while newPoints
-        new = false
+    update = true
+    while update
+        update = false
 
         (mx, my), min = dequeue_pair!(pq)   # Getting the point with minimum distance
         if (mx, my) == dest                 # Breaking if destination is visited
             break
         end
-        visited[mx, my] = true              # Setting point as visited        
-        nbVisited += 1
+        state[mx, my] = closed              # Closing node        
         
         # Collecting adjacent points
         adj[1] = (mx-1, my)
@@ -51,20 +51,27 @@ function dijkstra(mapTitle::String,
         for (x,y) in adj
             # Checking if the point is inbounds
             if (x >= 1 && x <= width && y >= 1 && y <= height)
+                nbVisited += 1
+
                 # Calculating transition cost
                 tc = costMatrix[mapMatrix[mx,my], mapMatrix[x,y]]
+
                 # Checking if the point is a wall
                 if tc < 0
-                    visited[x,y] = true # Set as visited and skip the process
+                    state[x,y] = closed # Set as closed and skip the process
                     continue
                 end
                 
-                newDist = dist[mx,my] + tc # Current distance + cost to the adjacent point
-                if (!visited[x,y] && newDist < dist[x,y])# && dist[mx,my] <= inf-tc)
-                    dist[x,y] = newDist         # Updating shortest distance to (x,y)
+                if state[x,y] != closed
+                    newDist = dist[mx,my] + tc  # Current distance + cost to the adjacent point
+                    if (state[x,y] == visited && newDist < dist[x,y])
+                        dist[x,y] = newDist     # Updating shortest distance
+                    else
+                        dist[x,y] = tc          # Setting shortest distance
+                    end
                     prec[x,y] = (mx,my)         # Setting parent
-                    push!(pq, (x,y) => newDist) # Adding the new distance to the queue
-                    newPoints = true            # Indicating that new points have to be processed
+                    push!(pq, (x,y) => newDist) # Updating priority queue
+                    update = true               # Indicating continuation
                 end
             end
         end
@@ -77,6 +84,6 @@ function dijkstra(mapTitle::String,
         display_path(mapMatrix, prec, costMatrix, ori, dest)
 
         ###   GRAPHICS   ###
-        draw_map_window(mapMatrix, prec, visited, ori, dest, mapTitle)
+        draw_map_window(mapMatrix, prec, state, ori, dest, mapTitle)
     end
 end
