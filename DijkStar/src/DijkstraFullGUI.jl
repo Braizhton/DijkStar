@@ -53,9 +53,9 @@ function findShowPath(canvas::GtkCanvas,
                   -1 -1 -1 -1 -1] # T
     =#
     costMatrix = [-1 -1 -1 -1 -1; # @
-                  -1  1  5 -1 -1; # .
-                  -1  1  5 -1 -1; # S
-                  -1 -1 -1  1 -1; # W
+                  -1  1  5  8 -1; # .
+                  -1  1  5  8 -1; # S
+                  -1  1  5  8 -1; # W
                   -1 -1 -1 -1 -1] # T
 
     # BEGIN
@@ -66,12 +66,12 @@ function findShowPath(canvas::GtkCanvas,
     while !((mx,my) == dest || isempty(pq))
 
         (mx, my) = dequeue!(pq) # Getting the point with minimum distance
-        state[mx, my] = closed            # Setting point as visited        
+        state[mx, my] = closed  # Setting point as visited        
 
         if !((mx,my) == ori || (mx,my) == dest)
             # Setting visited on canvas
             colorMatrix[mx, my] =
-                grad[floor(Int, sqrt((ori[1]-mx)^2+(ori[2]-my)^2)+1)]
+                grad[floor(Int, sqrt(abs(ori[1]-mx)^2+abs(ori[2]-my)^2)+1)]
         end
         
         if gradOn
@@ -90,8 +90,6 @@ function findShowPath(canvas::GtkCanvas,
             # Checking if the point is inbounds
             if (x >= 1 && x <= w && y >= 1 && y <= h)
                 nstate = state[x,y]
-                nbVisited += 1
-                #colorMatrix[x,y] = visitedColor # Setting as openned on the canvas
 
                 # Calculating transition cost
                 tc = costMatrix[mapMatrix[mx,my], mapMatrix[x,y]]
@@ -112,6 +110,8 @@ function findShowPath(canvas::GtkCanvas,
                 if nstate != closed
                     newDist = dist[mx,my] + tc      # Current distance + transition cost
                     if nstate == unvisited
+                        nbVisited += 1
+                        colorMatrix[x,y] = visitedColor # Setting as openned on the canvas
                         state[x,y] = openned        # Setting as open
                         dist[x,y] = newDist         # Setting distance from origin
                         prec[x,y] = (mx,my)         # Setting parent
@@ -129,6 +129,7 @@ function findShowPath(canvas::GtkCanvas,
 
     # Drawing shortest path
     pathLength = 1
+    colorMatrix[dest[1],dest[2]] = gradEnd
     (x,y) = prec[dest[1], dest[2]]
     pathCost = costMatrix[mapMatrix[dest[1],dest[2]],mapMatrix[x,y]]
     while (x,y) != ori
@@ -171,6 +172,9 @@ function dijkstraGUI(title::String, guiOn::Bool, gradOn::Bool)#, speed::Float64)
     # Setting canvas and window
     h, w = size(mapMatrix)
     scale = ceil(Int, 950/h)
+    if scale*h > 1080
+        scale -= 1
+    end
     hc = scale*h
     wc = scale*w
     canvas = @GtkCanvas(wc,hc)
@@ -213,13 +217,13 @@ function dijkstraGUI(title::String, guiOn::Bool, gradOn::Bool)#, speed::Float64)
             done = true
             if guiOn
                 println("---------------------------")
-                findShowPath(canvas,
+                @time findShowPath(canvas,
                              ori, dest,
                              mapMatrix, colorMatrix,
                              gradOn)#, speed)
                 #println("---------------------------")
             else
-                dijkstra(title, ori, dest, true)
+                dijkstra(title, (ori[2],ori[1]), (dest[2],dest[1]), true)
             end
         elseif done
             # Reset !

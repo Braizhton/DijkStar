@@ -28,9 +28,9 @@ function dijkstra(mapTitle::String,
                   -1 -1 -1 -1 -1] # T
     =#
     costMatrix = [-1 -1 -1 -1 -1; # @
-                  -1  1  5 -1 -1; # .
-                  -1  1  5 -1 -1; # S
-                  -1 -1 -1  1 -1; # W
+                  -1  1  5  8 -1; # .
+                  -1  1  5  8 -1; # S
+                  -1  1  5  8 -1; # W
                   -1 -1 -1 -1 -1] # T
 
     # BEGIN
@@ -54,19 +54,19 @@ function dijkstra(mapTitle::String,
             # Checking if the point is inbounds
             if x >= 1 && x <= width && y >= 1 && y <= height
                 nstate = state[x,y]
-                nbVisited += 1
 
                 # Calculating transition cost
                 tc = costMatrix[mapMatrix[mx,my],mapMatrix[x,y]]
                 # Checking if the point is a wall
                 if tc < 0
-                    state[x,y] = closed # Set as closed and skip the process
+                    #state[x,y] = closed # Set as closed and skip the process
                     continue
                 end
                 
                 if nstate != closed
                     newDist = dist[mx,my] + tc      # Current distance + transition cost
                     if nstate == unvisited
+                        nbVisited += 1
                         state[x,y] = openned        # Setting as open
                         dist[x,y] = newDist         # Setting distance from origin
                         prec[x,y] = (mx,my)         # Setting parent

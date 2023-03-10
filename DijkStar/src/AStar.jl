@@ -31,9 +31,9 @@ function astar(mapTitle::String,
                   -1 -1 -1 -1 -1] # T
     =#
     costMatrix = [-1 -1 -1 -1 -1; # @
-                  -1  1  5 -1 -1; # .
-                  -1  1  5 -1 -1; # S
-                  -1 -1 -1  1 -1; # W
+                  -1  1  5  8 -1; # .
+                  -1  1  5  8 -1; # S
+                  -1  1  5  8 -1; # W
                   -1 -1 -1 -1 -1] # T
 
     # BEGIN
@@ -56,11 +56,10 @@ function astar(mapTitle::String,
         for (x,y) in adj
             if (x >= 1 && x <= width && y >= 1 && y <= height)
                 nstate = state[x,y]
-                nbVisited += 1
 
                 tc = costMatrix[mapMatrix[mx,my],mapMatrix[x,y]]
                 if tc < 0
-                    state[x,y] = closed
+                    #state[x,y] = closed
                     continue
                 end
 
@@ -69,6 +68,7 @@ function astar(mapTitle::String,
                     distToDest = abs(dest[1]-x) + abs(dest[2]-y)
 
                     if nstate == unvisited
+                        nbVisited += 1
                         state[x,y] = openned
                         dist[x,y] = newDist
                         prec[x,y] = (mx,my)

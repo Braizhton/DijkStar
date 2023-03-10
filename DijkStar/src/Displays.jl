@@ -9,13 +9,13 @@ function display_path(map::Matrix{Int64},
     (x,y) = dest
     while (x,y) != ori
         pathLength += 1
-        println((x,y))
+        println((y,x))
         cur = (x,y)
         (x,y) = prec[x,y]
         pathCost += cost[map[x,y],map[cur[1],cur[2]]]
     end
     println(ori)
-    println("Path length from  ", ori, " to ", dest, " : ", pathLength)
+    println("Path length from  ", (ori[2],ori[1]), " to ", (dest[2],dest[1]), " : ", pathLength)
     println("Path cost : ", pathCost)
     println("Number of visits : ", nbVisited)
 end
@@ -40,6 +40,7 @@ function draw_map_window(map::Matrix{Int64},
     path_slow_color = colorant"mediumorchid"
     gradEnd = colorant"red"
     gradStart = colorant"lime"
+    oriColor = colorant"magenta"
     
     colorSet = [colorant"black",
                 colorant"wheat",
@@ -73,7 +74,7 @@ function draw_map_window(map::Matrix{Int64},
         for i = 1:w, j = 1:h
             rectangle(ctx, (i-1)*scalew, (j-1)*scaleh, scalew, scaleh)
             if state[j,i] == closed
-                set_source(ctx, grad[floor(Int, sqrt((ori[1]-i)^2+(ori[2]-j)^2)+1)])
+                set_source(ctx, grad[floor(Int, sqrt(abs(ori[1]-j)^2+abs(ori[2]-i)^2)+1)])
             elseif state[j,i] == openned
                 set_source(ctx, visited_color)
             else
@@ -84,7 +85,7 @@ function draw_map_window(map::Matrix{Int64},
         
         # Drawing source
         rectangle(ctx, (ori[2]-1)*scalew, (ori[1]-1)*scaleh, scalew, scaleh)
-        set_source(ctx, gradStart)
+        set_source(ctx, oriColor)
         fill(ctx)
         
         # Drawing shortest path
