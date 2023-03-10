@@ -1,8 +1,9 @@
 dijkstra("../test/maps/arena.map", (5,4), (45,45), true)
 dijkstra("../test/maps/den012d.map", (8,99), (179,149), true)
 dijkstra("../test/maps/test.map", (2,2), (14,10), true)
-astar("../test/maps/FloodedPlains.map", (5,4), (45,45), true)
+astar("../test/maps/FloodedPlains.map", (1,1), (743,768), true)
 
-dijkstraGUI("../test/maps/test.map", true, true)
-dijkstraGUI("../test/maps/den012d.map", true, false)
-dijkstraGUI("../test/maps/arena.map", false, false)
+## Booleen : stepByStep
+dijkstraGUI("../test/maps/test.map", true)   ## Affichage étape par étape (extrêmement lent pour plus de 50x50 pixels)
+dijkstraGUI("../test/maps/arena.map", false) ## Affichage dans une fenêtre de la carte et du résultat
+

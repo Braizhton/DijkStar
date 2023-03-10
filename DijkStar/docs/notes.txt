@@ -4,8 +4,4 @@ Luxor / Makie / GTK (GUI)
 ARGS
 
 julia --project=. src/filename.jl ARG1 ARG2 ...
-##############################
 
-! TODO : Ajouter la matrice des visités pour draw_map_window
-         et ainsi afficher le gradient
-(gradient : calculer la range en fonction de la distance max dans dist[])

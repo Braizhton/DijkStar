@@ -47,10 +47,10 @@ function astar(mapTitle::String,
         state[mx, my] = closed
         
         # Collecting adjacent points
-        adj[1] = (mx-1, my)
-        adj[2] = (mx+1, my)
-        adj[3] = (mx, my-1)
         adj[4] = (mx, my+1)
+        adj[3] = (mx, my-1)
+        adj[2] = (mx+1, my)
+        adj[1] = (mx-1, my)
 
         # Processing adjacent points
         for (x,y) in adj

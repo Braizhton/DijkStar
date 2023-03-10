@@ -20,7 +20,7 @@ function findShowPath(canvas::GtkCanvas,
                       dest::Tuple{Int64, Int64},
                       mapMatrix::Matrix{Int64},
                       colorMatrix::Matrix{RGB{FixedPointNumbers.N0f8}},
-                      gradOn::Bool)#, speed::Float64)
+                      stepByStep::Bool)#, speed::Float64)
     # Colors
     gradStart = colorant"lime"
     gradEnd = colorant"red"
@@ -74,7 +74,7 @@ function findShowPath(canvas::GtkCanvas,
                 grad[floor(Int, sqrt(abs(ori[1]-mx)^2+abs(ori[2]-my)^2)+1)]
         end
         
-        if gradOn
+        if stepByStep
             draw(canvas) # Refreshing
         end
         #sleep(speed)
@@ -98,7 +98,7 @@ function findShowPath(canvas::GtkCanvas,
                     state[x,y] = closed # Set as visited and skip the process
                     #=
                     colorMatrix[x,y] = last(grad) # Setting as unreachable on canvas
-                    if gradOn
+                    if stepByStep
                          draw(canvas) # Refreshing
                     end
                     sleep(speed)
@@ -143,7 +143,7 @@ function findShowPath(canvas::GtkCanvas,
         (x,y) = prec[x,y]
         pathCost += costMatrix[mapMatrix[x,y],mapMatrix[cur[1],cur[2]]]
 
-        #if gradOn
+        #if stepByStep
         #    draw(canvas) # Refreshing
         #end
         #sleep(speed)
@@ -155,7 +155,7 @@ function findShowPath(canvas::GtkCanvas,
     #END
 end
 
-function dijkstraGUI(title::String, guiOn::Bool, gradOn::Bool)#, speed::Float64)
+function dijkstraGUI(title::String, stepByStep::Bool)#, speed::Float64)
     # INITIATIONS
     oriColor = colorant"magenta"
     destColor = colorant"red"
@@ -215,16 +215,12 @@ function dijkstraGUI(title::String, guiOn::Bool, gradOn::Bool)#, speed::Float64)
         # Calling pathfinding function after origin and destination are set
         if !waitOrigin && !waitDest && !done
             done = true
-            if guiOn
-                println("---------------------------")
-                @time findShowPath(canvas,
-                             ori, dest,
-                             mapMatrix, colorMatrix,
-                             gradOn)#, speed)
-                #println("---------------------------")
-            else
-                dijkstra(title, (ori[2],ori[1]), (dest[2],dest[1]), true)
-            end
+            println("---------------------------")
+            @time findShowPath(canvas,
+                         ori, dest,
+                         mapMatrix, colorMatrix,
+                         stepByStep)#, speed)
+            #println("---------------------------")
         elseif done
             # Reset !
             done = false
