@@ -20,7 +20,7 @@ function findShowPath(canvas::GtkCanvas,
                       dest::Tuple{Int64, Int64},
                       mapMatrix::Matrix{Int64},
                       colorMatrix::Matrix{RGB{FixedPointNumbers.N0f8}},
-                      stepByStep::Bool)#, speed::Float64)
+                      stepByStep::Bool = false)#, speed::Float64)
     # Colors
     gradStart = colorant"lime"
     gradEnd = colorant"red"

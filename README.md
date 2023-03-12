@@ -22,7 +22,7 @@ Where :
 - **destination** | type Tuple{Int64, Int64}  | Arrival point
 - **metricsOn**   | type Bool                 | Switch on/off metrics displays      | Defaults to *true*
 - **displayOn**   | type Bool                 | Switch on/off graphic displays      | Defaults to *false*
-- **stepByStep**  | type Bool                 | Switch on/off step by step displays 
+- **stepByStep**  | type Bool                 | Switch on/off step by step displays | Defaults to *false* 
 
 ## Examples 
 ```julia
@@ -35,8 +35,8 @@ astar("test/maps/FloodedPlains.map", (1,1), (743,768))              # ...
 astar("test/maps/bootybay.map", (91,157), (412,147), true)
 astar("test/maps/arena.map", (91,157), (412,147), true, true)
 
+dijkstraGUI("test/maps/test.map")         ## Displaying result after computation is complete 
 dijkstraGUI("test/maps/test.map", true)   ## Displaying step by step (extremely slow for more than 50x50 maps)
-dijkstraGUI("test/maps/arena.map", false) ## Displaying result after computation is complete
 ```
 
 ## DijkstraGUI details
