@@ -24,7 +24,7 @@ Where :
 - **displayOn**   | type Bool                 | Switch on/off graphic displays      | Defaults to *false*
 - **stepByStep**  | type Bool                 | Switch on/off step by step displays 
 
-## Exemples 
+## Examples 
 ```julia
 dijkstra("test/maps/arena.map", (5,4), (45,45))                     # metricsOn = true & displayOn = false
 dijkstra("test/maps/test.map", (2,2), (14,10), true, true, false)   # Same
