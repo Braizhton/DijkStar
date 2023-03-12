@@ -1,7 +1,8 @@
 function dijkstra(mapTitle::String,
                   o::Tuple{Int64,Int64},
                   d::Tuple{Int64,Int64},
-                  displayOn::Bool)
+                  metricsOn::Bool = true,
+                  displayOn::Bool = false)
 
     # INITIATIONS
     mapMatrix = read_map(mapTitle)  # Map matrix
@@ -85,12 +86,23 @@ function dijkstra(mapTitle::String,
 
     # PRINTING
     if (mx,my) != dest
-        println("No path were found from ", ori, " to ", dest, "!!")
-    elseif displayOn && (mx,my) == dest
+        println("No path were found from ", ori, " to ", dest, " !!")
+
+    elseif metricsOn && displayOn
+        # COMMAND LINE
+        display_path(mapMatrix, prec, costMatrix, ori, dest, nbVisited)
+        # GRAPHICS
+        draw_map_window(mapMatrix, prec, state, ori, dest, mapTitle)
+
+    elseif metricsOn
         # COMMAND LINE
         display_path(mapMatrix, prec, costMatrix, ori, dest, nbVisited)
 
+    elseif displayOn
         # GRAPHICS
         draw_map_window(mapMatrix, prec, state, ori, dest, mapTitle)
+
+    else
+        println("Path found, activate displays for more details !")
     end
 end

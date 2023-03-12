@@ -9,7 +9,7 @@ function display_path(map::Matrix{Int64},
     (x,y) = dest
     while (x,y) != ori
         pathLength += 1
-        println((y,x))
+        print((y,x), " <-- ")
         cur = (x,y)
         (x,y) = prec[x,y]
         pathCost += cost[map[x,y],map[cur[1],cur[2]]]
@@ -17,7 +17,7 @@ function display_path(map::Matrix{Int64},
     println(ori)
     println("Path length from  ", (ori[2],ori[1]), " to ", (dest[2],dest[1]), " : ", pathLength)
     println("Path cost : ", pathCost)
-    println("Number of visits : ", nbVisited)
+    println("Number states evaluated : ", nbVisited)
 end
 
 function draw_map_window(map::Matrix{Int64},
