@@ -6,7 +6,7 @@ https://movingai.com/benchmarks/grids.html
 - Gtk
 - Colors
 - DataStructures
-- FixedPointNumbers (needed for RGB{FixedPointNumbers.N0f8})
+- FixedPointNumbers (needed for `RGB{FixedPointNumbers.N0f8}`)
 
 ## Running tests
 ```julia
