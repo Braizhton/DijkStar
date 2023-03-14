@@ -14,7 +14,7 @@ include("src/DijkStar") ; using .DijkStar
 
 astar(mapfile, origin, destination, metricsOn, displayOn)
 dijkstra(mapfile, origin, destination, metricsOn, displayOn)  
-dijkstraGUI(mapfile, stepByStep) # Not recommanded for more than 50x50 maps
+dijkstraGUI(mapfile, stepByStep) # stepByStep not recommanded for more than 50x50 maps
 ```
 Where :
 - **mapfile**     | type String               | Path to "file.map"
