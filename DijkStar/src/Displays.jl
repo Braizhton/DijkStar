@@ -20,6 +20,24 @@ function display_path(map::Matrix{Int64},
     println("Number states evaluated : ", nbVisited)
 end
 
+# Used in GUI versions to draw maps using a RGB color matrix
+function mapDraw(canvas::GtkCanvas)
+    ctx = getgc(canvas)
+
+    h, w = size(colorMatrix)
+    hc = height(canvas)
+    wc = width(canvas)
+    scale = ceil(Int, hc/h)
+
+    # Drawing map
+    for i = 1:w, j = 1:h
+        rectangle(ctx, (i-1)*scale, (j-1)*scale, scale, scale)
+        set_source(ctx, colorMatrix[j,i])   # Setting graphic context color
+        fill(ctx)                           # Filling canvas
+    end
+    show(canvas)
+end
+
 function draw_map_window(map::Matrix{Int64},
                          prec::Matrix{Tuple{Int64,Int64}},
                          state::Matrix{State},

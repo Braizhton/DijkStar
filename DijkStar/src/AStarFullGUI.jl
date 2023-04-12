@@ -1,4 +1,9 @@
-function findPathDijkstra(canvas::GtkCanvas,
+struct AStarOrder <: Ordering end
+# Order is based on the distance to origin + the distance to destination
+# In case of equality, on distance to destination
+lt(::AStarOrder, (x1, y1), (x2, y2)) = x1 + y1 < x2 + y2 || x1 + y1 == x2 + y2 && y1 < y2
+
+function findPathAStar(canvas::GtkCanvas,
                       ori::Tuple{Int64,Int64},
                       dest::Tuple{Int64, Int64},
                       mapMatrix::Matrix{Int64},
@@ -23,7 +28,7 @@ function findPathDijkstra(canvas::GtkCanvas,
     dist = Matrix{Int64}(undef, h, w)
     state = fill(unvisited, h, w)
     prec = Matrix{Tuple{Int64,Int64}}(undef, h, w)
-    pq = PriorityQueue{Tuple{Int64, Int64}, Int64}()
+    pq = PriorityQueue{Tuple{Int64, Int64}, Tuple{Int64, Int64}}(AStarOrder())
     
     adj = Vector{Tuple{Int64,Int64}}(undef, 4)  # To collect adjacent points
     
@@ -42,8 +47,8 @@ function findPathDijkstra(canvas::GtkCanvas,
                   -1 -1 -1 -1 -1] # T
 
     # BEGIN
-    dist[ori[1], ori[2]] = 0    # Setting the origin's distance from itself
-    push!(pq, ori => 0)         # Initiating the priority queue
+    dist[ori[1], ori[2]] = 0
+    push!(pq, ori => (0,0))
 
     (mx,my) = ori
     while !((mx,my) == dest || isempty(pq))
@@ -89,21 +94,23 @@ function findPathDijkstra(canvas::GtkCanvas,
                     continue
                 end
 
-                newDist = dist[mx,my] + tc # Current distance + cost to the adjacent point
+                newDist = dist[mx,my] + tc
                 if nstate != closed
-                    newDist = dist[mx,my] + tc      # Current distance + transition cost
+                    newDist = dist[mx,my] + tc
+                    distToDest = abs(dest[1]-x) + abs(dest[2]-y)
+
                     if nstate == unvisited
                         nbVisited += 1
-                        colorMatrix[x,y] = visitedColor # Setting as openned on the canvas
-                        state[x,y] = openned        # Setting as open
-                        dist[x,y] = newDist         # Setting distance from origin
-                        prec[x,y] = (mx,my)         # Setting parent
-                        push!(pq, (x,y) => newDist) # Adding in priority queue
+                        colorMatrix[x,y] = visitedColor
+                        state[x,y] = openned
+                        dist[x,y] = newDist
+                        prec[x,y] = (mx,my)
+                        push!(pq, (x,y) => (newDist, distToDest))
 
                     elseif nstate == openned && newDist < dist[x,y]
-                        dist[x,y] = newDist         # Updating shortest distance
-                        prec[x,y] = (mx,my)         # Setting parent
-                        push!(pq, (x,y) => newDist) # Updating priority queue
+                        dist[x,y] = newDist
+                        prec[x,y] = (mx,my)
+                        push!(pq, (x,y) => (newDist, distToDest))
                     end
                 end
             end
@@ -138,7 +145,7 @@ function findPathDijkstra(canvas::GtkCanvas,
     #END
 end
 
-function dijkstraGUI(title::String, stepByStep::Bool = false)#, speed::Float64)
+function astarGUI(title::String, stepByStep::Bool = false)#, speed::Float64)
     # INITIATIONS
     oriColor = colorant"magenta"
     destColor = colorant"red"
@@ -199,10 +206,10 @@ function dijkstraGUI(title::String, stepByStep::Bool = false)#, speed::Float64)
         if !waitOrigin && !waitDest && !done
             done = true
             println("---------------------------")
-            @time findPathDijkstra(canvas,
-                                   ori, dest,
-                                   mapMatrix, colorMatrix,
-                                   stepByStep)#, speed)
+            @time findPathAStar(canvas,
+                                ori, dest,
+                                mapMatrix, colorMatrix,
+                                stepByStep)#, speed)
             #println("---------------------------")
         elseif done
             # Reset !

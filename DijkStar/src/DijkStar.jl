@@ -12,7 +12,6 @@ import Base.Ordering
 import Base.lt
 
 include("ReadMap.jl")
-include("InitDijkStar.jl")
 include("Displays.jl")
 
 export dijkstra
@@ -23,5 +22,8 @@ include("AStar.jl")
 
 export dijkstraGUI
 include("DijkstraFullGUI.jl")
+
+export astarGUI
+include("AStarFullGUI.jl")
 
 end # module DijkStar
