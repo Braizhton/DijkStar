@@ -20,10 +20,15 @@ include("Dijkstra.jl")
 export astar
 include("AStar.jl")
 
+export wastar
+include("WAStar.jl")
+
 export dijkstraGUI
 include("DijkstraFullGUI.jl")
 
 export astarGUI
 include("AStarFullGUI.jl")
 
+export wastarGUI
+include("WAStarFullGUI.jl")
 end # module DijkStar

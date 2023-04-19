@@ -138,7 +138,7 @@ function findPathAStar(canvas::GtkCanvas,
         #end
         #sleep(speed)
     end
-    println("Path length from  ", ori, " to ", dest, " : ", pathLength)
+    println("Path length from  ", (ori[2],ori[1]), " to ", (dest[2],dest[1]), " : ", pathLength)
     println("Path cost : ", pathCost)
     println("Visited nodes : ", nbVisited)
     draw(canvas)
@@ -162,7 +162,7 @@ function astarGUI(title::String, stepByStep::Bool = false)#, speed::Float64)
     # Setting canvas and window
     h, w = size(mapMatrix)
     scale = ceil(Int, 950/h)
-    if scale*h > 1080
+    if scale*h > 1024
         scale -= 1
     end
     hc = scale*h

@@ -3,9 +3,10 @@ struct AStarOrder <: Ordering end
 # In case of equality, on distance to destination
 lt(::AStarOrder, (x1, y1), (x2, y2)) = x1 + y1 < x2 + y2 || x1 + y1 == x2 + y2 && y1 < y2
 
-function astar(mapTitle::String,
+function wastar(mapTitle::String,
                o::Tuple{Int64,Int64},
                d::Tuple{Int64,Int64},
+               ω::Int64 = 1,
                metricsOn::Bool = true,
                displayOn::Bool = false)
 
@@ -73,12 +74,12 @@ function astar(mapTitle::String,
                         state[x,y] = openned
                         dist[x,y] = newDist
                         prec[x,y] = (mx,my)
-                        push!(pq, (x,y) => (newDist,distToDest))
+                        push!(pq, (x,y) => (newDist,ω*distToDest))
 
                     elseif nstate == openned && newDist < dist[x,y]    
                         dist[x,y] = newDist
                         prec[x,y] = (mx,my)
-                        push!(pq, (x,y) => (newDist,distToDest))
+                        push!(pq, (x,y) => (newDist,ω*distToDest))
                     end
                 end
             end
