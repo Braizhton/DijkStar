@@ -89,7 +89,6 @@ function findPathDijkstra(canvas::GtkCanvas,
                     continue
                 end
 
-                newDist = dist[mx,my] + tc # Current distance + cost to the adjacent point
                 if nstate != closed
                     newDist = dist[mx,my] + tc      # Current distance + transition cost
                     if nstate == unvisited

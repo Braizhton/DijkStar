@@ -94,7 +94,6 @@ function findPathAStar(canvas::GtkCanvas,
                     continue
                 end
 
-                newDist = dist[mx,my] + tc
                 if nstate != closed
                     newDist = dist[mx,my] + tc
                     distToDest = abs(dest[1]-x) + abs(dest[2]-y)
