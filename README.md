@@ -10,7 +10,7 @@ https://movingai.com/benchmarks/grids.html
 
 ## Running tests
 ```julia
-include("src/DijkStar") ; using .DijkStar
+include("src/DijkStar.jl") ; using .DijkStar
 
 astar(mapfile, origin, destination, metricsOn, displayOn)
 dijkstra(mapfile, origin, destination, metricsOn, displayOn)  
